@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CROM.ME — Command Center (Admin)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    },
+                    colors: {
+                        surface: { 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 300: '#d4d4d8', 400: '#a1a1aa', 500: '#71717a', 600: '#52525b', 700: '#3f3f46', 800: '#27272a', 900: '#18181b', 950: '#040405' },
+                        brand: { 400: '#10b981', 500: '#059669', 600: '#064e3b' },
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            background-color: #040405;
+            color: #f4f4f5;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-active {
+            color: #10b981;
+            border-bottom: 2px solid #10b981;
+            background: linear-gradient(to top, rgba(16, 185, 129, 0.05), transparent);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .data-table thead th {
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen border-t-2 border-brand-500 flex flex-col antialiased">
+
+    <header class="glass sticky top-0 z-50 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                    <svg class="w-5 h-5 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="2.5">
+                        <path
+                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-sm font-black tracking-widest uppercase">Command <span
+                            class="text-brand-400">Center</span></h1>
+                    <p class="text-[10px] text-zinc-500 font-mono">v0.2.0-beta // privileged-access</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-6">
+                <nav class="hidden md:flex items-center gap-4 border-r border-white/10 pr-6">
+                    <a href="/dashboard"
+                        class="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-widest">Portal
+                        Usuário</a>
+                    <a href="https://crom.run" target="_blank"
+                        class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-widest">CROM.RUN</a>
+                </nav>
+                <a href="/auth/logout"
+                    class="text-xs font-black text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest">Encerrar
+                    Sessão</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="glass border-b border-white/5 sticky top-16 z-40">
+        <div class="max-w-7xl mx-auto px-6 flex gap-8">
+            <button onclick="switchTab('provisioning')" id="tab-provisioning"
+                class="py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all tab-active flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Pendentes
+            </button>
+            <button onclick="switchTab('domains')" id="tab-domains"
+                class="py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-500 hover:text-zinc-300 flex items-center gap-2">
+                Domínios
+            </button>
+            <button onclick="switchTab('users')" id="tab-users"
+                class="py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-500 hover:text-zinc-300 flex items-center gap-2">
+                Usuários
+            </button>
+            <button onclick="switchTab('promote')" id="tab-promote"
+                class="py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-500 hover:text-zinc-300 flex items-center gap-2">
+                Privilégios
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10 w-full">
+
+        <section id="panel-provisioning" class="fade-in">
+            <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <h2 class="text-2xl font-black italic tracking-tight">Fila de Triagem</h2>
+                    <p class="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold text-[10px]">Aguardando
+                        auditoria de fair-use</p>
+                </div>
+            </div>
+
+            <div id="pending-list" class="grid gap-4">
+                <div class="text-center py-20 glass rounded-3xl border-dashed border-2 border-white/5">
+                    <svg class="animate-spin h-8 w-8 mx-auto text-brand-500 opacity-50" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+                        </path>
+                    </svg>
+                    <p class="mt-4 font-mono text-xs text-zinc-500 uppercase tracking-widest">Escaneando solicitações...
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-domains" class="hidden fade-in">
+            <div class="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div>
+                    <h2 class="text-2xl font-black italic tracking-tight">Registro de Nodos</h2>
+                    <p class="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold text-[10px]">Domínios
+                        autorizados na malha crom.me</p>
+                </div>
+            </div>
+
+            <div class="glass rounded-[2rem] p-8 mb-12 border-t-4 border-brand-500 shadow-2xl shadow-brand-500/5">
+                <h3 class="text-xs font-black text-brand-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Fast-Track: Provisionamento Direto
+                </h3>
+                <form id="admin-create-domain-form" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase mb-2">Prefixo</label>
+                        <input type="text" name="subdomain" required placeholder="app-v1"
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-mono focus:border-brand-500 outline-none">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase mb-2">Target</label>
+                        <input type="text" name="target" required placeholder="148.230.79.173"
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-white font-mono focus:border-brand-500 outline-none">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase mb-2">Projeto</label>
+                        <input type="text" name="project_name" value="ADMIN-BYPASS"
+                            class="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-zinc-500 font-bold uppercase tracking-widest"
+                            readonly>
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-[10px] font-black text-zinc-500 uppercase mb-2">Email</label>
+                        <input type="email" name="contact_email" value="root@crom.me"
+                            class="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm text-zinc-500 font-bold"
+                            readonly>
+                    </div>
+                    <div>
+                        <button type="submit"
+                            class="w-full bg-white text-surface-950 font-black rounded-xl py-3.5 text-xs uppercase tracking-widest hover:bg-brand-400 transition-all active:scale-95">
+                            Provisionar
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass rounded-[2rem] overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm data-table">
+                        <thead class="bg-white/5 border-b border-white/5">
+                            <tr class="text-left">
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Hostname</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Target Mapping</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Type</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="domains-table-body" class="divide-y divide-white/5">
+                            <tr>
+                                <td colspan="5"
+                                    class="px-6 py-12 text-center text-zinc-600 font-mono text-xs uppercase italic">
+                                    Sincronizando registros DNS...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-users" class="hidden fade-in">
+            <div class="mb-10">
+                <h2 class="text-2xl font-black italic tracking-tight">Base de Operadores</h2>
+                <p class="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold text-[10px]">Identidades
+                    autenticadas via GitHub Protocol</p>
+            </div>
+
+            <div class="glass rounded-[2rem] overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm data-table">
+                        <thead class="bg-white/5 border-b border-white/5">
+                            <tr class="text-left">
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Operador</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Email</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Role</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500">Registro</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-zinc-500 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-white/5">
+                            <tr>
+                                <td colspan="6"
+                                    class="px-6 py-12 text-center text-zinc-600 font-mono text-xs uppercase italic">
+                                    Carregando usuários ativos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="panel-promote" class="hidden fade-in">
+            <div class="mb-10 text-center max-w-2xl mx-auto">
+                <h2 class="text-3xl font-black italic tracking-tight">Atribuição de Privilégios</h2>
+                <p class="text-zinc-500 text-sm mt-2 uppercase tracking-widest font-bold text-[10px]">Expanda a
+                    capacidade de slots para parceiros e patrocinadores</p>
+            </div>
+
+            <div
+                class="glass rounded-[3rem] p-10 max-w-xl mx-auto border-t-4 border-brand-500 shadow-2xl shadow-brand-500/10">
+                <form id="promote-form" class="space-y-8">
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest block ml-2">UUID do
+                            Operador</label>
+                        <input type="text" name="user_id" required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                            class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-mono text-sm focus:border-brand-500 outline-none">
+                    </div>
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest block ml-2">Novos
+                            Slots (+) </label>
+                        <input type="number" name="base_limit" required value="10" min="1" max="1000"
+                            class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white font-mono text-lg font-bold focus:border-brand-500 outline-none">
+                    </div>
+                    <button type="submit"
+                        class="w-full py-5 bg-white text-surface-950 font-black rounded-2xl hover:bg-brand-400 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-white/5 uppercase tracking-widest text-xs">
+                        Confirmar Promoção
+                    </button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // ═══════════════════════════════════════════════
+        // Tab System (Preserved Logic)
+        // ═══════════════════════════════════════════════
+        const tabs = ['provisioning', 'domains', 'users', 'promote'];
+
+        function switchTab(name) {
+            tabs.forEach(t => {
+                const panel = document.getElementById('panel-' + t);
+                const tab = document.getElementById('tab-' + t);
+                if (panel) panel.classList.toggle('hidden', t !== name);
+                if (tab) {
+                    if (t === name) {
+                        tab.className = 'py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all tab-active flex items-center gap-2';
+                    } else {
+                        tab.className = 'py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all text-zinc-500 hover:text-zinc-300 flex items-center gap-2';
+                    }
+                }
+            });
+
+            if (name === 'provisioning') loadPending();
+            if (name === 'users') loadUsers();
+            if (name === 'domains') loadDomains();
+        }
+
+        // ═══════════════════════════════════════════════
+        // Fila de Provisionamento
+        // ═══════════════════════════════════════════════
+        async function loadPending() {
+            try {
+                const resp = await fetch('/api/admin/pending');
+                const data = await resp.json();
+                const list = document.getElementById('pending-list');
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = `<div class="text-center py-20 glass rounded-3xl border-dashed border-2 border-white/5 italic text-zinc-600 uppercase text-xs font-mono tracking-widest">🎉 Triagem concluída. Fila zerada.</div>`;
+                    return;
+                }
+
+                list.innerHTML = data.map(d => `
+                    <div class="glass rounded-[2rem] p-8 hover:bg-white/5 transition-all group border border-transparent hover:border-white/10">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+                            <div class="flex-1 space-y-4">
+                                <div class="flex items-center gap-4 flex-wrap">
+                                    <span class="text-xl font-black tracking-tight text-white italic underline decoration-brand-500/50">${d.subdomain}.crom.me</span>
+                                    <span class="text-[10px] font-mono px-3 py-1 rounded-full bg-zinc-800 text-zinc-400 border border-white/5 uppercase">${d.record_type || 'CNAME'}</span>
+                                    <span class="text-zinc-600 font-mono">→</span>
+                                    <span class="text-sm font-mono text-brand-400 font-bold bg-brand-500/5 px-3 py-1 rounded-lg">${d.target}</span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-[10px] uppercase tracking-widest font-bold">
+                                    <div class="text-zinc-500">Projeto: <span class="text-zinc-300">${d.project_name || 'N/A'}</span></div>
+                                    <div class="text-zinc-500">Audit: <span class="text-zinc-300 font-mono">${d.user_id?.substring(0, 8)}...</span></div>
+                                    <div class="text-zinc-500">Contact: <span class="text-zinc-300 italic lowercase font-normal">${d.contact_email || 'N/A'}</span></div>
+                                </div>
+                                <div class="p-4 rounded-2xl bg-black/40 border border-white/5 italic text-xs text-zinc-400">
+                                    "${d.purpose}"
+                                </div>
+                            </div>
+                            <div class="flex lg:flex-col gap-3 shrink-0">
+                                <button onclick="approve('${d.id}')" class="px-6 py-3 bg-brand-500 text-surface-950 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-brand-400 transition-all shadow-lg shadow-brand-500/10">
+                                    Aprovar
+                                </button>
+                                <button onclick="reject('${d.id}')" class="px-6 py-3 bg-white/5 border border-white/10 text-red-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-red-500/10 hover:text-red-300 transition-all">
+                                    Bloquear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('pending-list').innerHTML = `<p class="text-red-400 text-center py-8">Sync Error: ${err.message}</p>`;
+            }
+        }
+
+        async function approve(id) {
+            if (!confirm('Confirmar deploy deste nodo?')) return;
+            try {
+                const resp = await fetch('/api/admin/approve?id=' + id, { method: 'POST' });
+                if (resp.ok) { loadPending(); } else { alert('Error: ' + await resp.text()); }
+            } catch (e) { console.error(e); }
+        }
+
+        async function reject(id) {
+            if (!confirm('Excluir solicitação permanentemente?')) return;
+            try {
+                const resp = await fetch('/api/admin/reject?id=' + id, { method: 'POST' });
+                if (resp.ok) { loadPending(); } else { alert('Error: ' + await resp.text()); }
+            } catch (e) { console.error(e); }
+        }
+
+        // ═══════════════════════════════════════════════
+        // Gestão de Domínios
+        // ═══════════════════════════════════════════════
+        async function loadDomains() {
+            try {
+                const resp = await fetch('/api/admin/domains');
+                const data = await resp.json();
+                const tbody = document.getElementById('domains-table-body');
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-12 text-center text-zinc-600 font-mono text-xs uppercase italic">Nenhum nodo registrado.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(d => {
+                    const statusColors = {
+                        active: 'text-brand-400 bg-brand-500/10 border-brand-500/20',
+                        pending: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+                        rejected: 'text-red-400 bg-red-400/10 border-red-400/20'
+                    };
+                    const badgeClass = statusColors[d.status] || 'text-zinc-400 bg-zinc-800';
+
+                    return `<tr class="hover:bg-white/5 transition-colors group">
+                        <td class="px-6 py-4 font-black text-white italic">${d.subdomain}.crom.me</td>
+                        <td class="px-6 py-4 font-mono text-xs text-brand-400 font-bold">${d.target}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-mono rounded-lg bg-zinc-800 text-zinc-500 border border-white/5">${d.record_type}</span></td>
+                        <td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full border ${badgeClass}">${d.status}</span></td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="deleteDomain('${d.id}')" class="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        async function deleteDomain(id) {
+            if (!confirm('EXTINÇÃO DE NODO: Confirma a exclusão deste registro no Cloudflare?')) return;
+            try {
+                const resp = await fetch('/api/admin/domains/delete?id=' + id, { method: 'POST' });
+                if (resp.ok) { loadDomains(); } else { alert('Erro: ' + await resp.text()); }
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('admin-create-domain-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            data.purpose = "ADMIN_BYPASS_INITIATED";
+
+            try {
+                const resp = await fetch('/api/admin/domains/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (resp.ok) {
+                    e.target.reset();
+                    loadDomains();
+                } else { alert('Erro: ' + await resp.text()); }
+            } catch (e) { console.error(e); }
+        });
+
+        // ═══════════════════════════════════════════════
+        // Gestão de Usuários
+        // ═══════════════════════════════════════════════
+        async function loadUsers() {
+            try {
+                const resp = await fetch('/api/admin/users');
+                const data = await resp.json();
+                const tbody = document.getElementById('users-table-body');
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center text-zinc-600 font-mono text-xs italic">Nenhum operador registrado.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = data.map(u => {
+                    const roleBadge = {
+                        admin: 'bg-red-500/10 text-red-500 border-red-500/20',
+                        banned: 'bg-zinc-800 text-zinc-500 border-transparent strike-through',
+                        user: 'bg-brand-500/10 text-brand-400 border-brand-500/20'
+                    }[u.role] || 'bg-white/5 text-zinc-500';
+
+                    const isBanned = u.role === 'banned';
+                    const actionsHtml = isBanned
+                        ? `<button onclick="unbanUser('${u.id}')" class="text-[10px] font-black text-brand-400 hover:text-white uppercase tracking-widest transition-colors">Desbanir</button>`
+                        : `<button onclick="banUser('${u.id}')" class="text-[10px] font-black text-zinc-600 hover:text-red-500 uppercase tracking-widest transition-colors" ${u.role === 'admin' ? 'disabled' : ''}>Suspender</button>`;
+
+                    const date = new Date(u.created_at).toLocaleDateString('pt-BR');
+
+                    return `<tr class="hover:bg-white/5 transition-colors group">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <img src="${u.avatar_url || ''}" alt="" class="w-8 h-8 rounded-full border-2 border-white/5 bg-zinc-800">
+                                <span class="font-black text-white italic truncate max-w-[150px]">${u.username}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-zinc-500 font-mono text-xs lowercase">${u.email || '—'}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full border ${roleBadge}">${u.role}</span></td>
+                        <td class="px-6 py-4">
+                            ${u.verified ? '<span class="text-brand-400 text-[10px] font-black uppercase tracking-tighter">Verified</span>' : '<span class="text-amber-500 text-[10px] font-black uppercase tracking-tighter">Pending</span>'}
+                        </td>
+                        <td class="px-6 py-4 text-[10px] font-mono text-zinc-600">${date}</td>
+                        <td class="px-6 py-4 text-right">${actionsHtml}</td>
+                    </tr>`;
+                }).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        // ═══════════════════════════════════════════════
+        // Promoção
+        // ═══════════════════════════════════════════════
+        document.getElementById('promote-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            data.base_limit = parseInt(data.base_limit);
+
+            btn.disabled = true;
+            btn.textContent = "PROCESSANDO...";
+
+            try {
+                const resp = await fetch('/api/admin/promote', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (resp.ok) {
+                    alert('⚡ Privilégios atualizados com sucesso.');
+                    e.target.reset();
+                } else { alert('Erro: ' + await resp.text()); }
+            } catch (err) { console.error(err); }
+            finally {
+                btn.disabled = false;
+                btn.textContent = "CONFIRMAR PROMOÇÃO";
+            }
+        };
+
+        // Init
+        loadPending();
+    </script>
+</body>
+
+</html>

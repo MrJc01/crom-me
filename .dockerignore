@@ -1,0 +1,27 @@
+# Não enviar binários compilados para o contexto Docker
+api
+crom-cli
+crom-api
+bin/
+*.exe
+
+# Ambiente e segredos
+.env
+.env.*
+
+# Git e IDE
+.git
+.gitignore
+.vscode/
+.idea/
+
+# Docs
+docs/
+Deploy.md
+README.md
+*.md
+
+# Temporários
+tmp/
+*.log
+*.tmp

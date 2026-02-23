@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crom Protocol — Console de Engenharia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    },
+                    colors: {
+                        brand: {
+                            400: '#10b981',
+                            500: '#059669',
+                            600: '#047857',
+                        },
+                        surface: {
+                            800: '#18181b',
+                            900: '#09090b',
+                            950: '#040405',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #040405;
+            color: #f4f4f5;
+        }
+
+        .glass {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .bg-mesh {
+            background-image: radial-gradient(at 0% 0%, hsla(161, 84%, 39%, 0.05) 0px, transparent 50%);
+        }
+
+        .status-ping {
+            animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-surface-950 bg-mesh min-h-screen border-t-2 border-brand-500 flex flex-col antialiased">
+
+    <header class="sticky top-0 z-50 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="group flex items-center gap-2">
+                    <div
+                        class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:rotate-6 transition-transform">
+                        <svg class="w-5 h-5 text-surface-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2.5">
+                            <path
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-black tracking-widest uppercase hidden md:block">Console <span
+                            class="text-brand-400">v0.2</span></span>
+                </a>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+                    <div class="w-6 h-6 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">
+                        <svg class="w-4 h-4 text-zinc-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                        </svg>
+                    </div>
+                    <span class="text-xs font-mono font-bold text-zinc-300" id="username">@authenticating...</span>
+                </div>
+                <a href="/auth/logout"
+                    class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-widest">Encerrar
+                    Sessão</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 py-10 w-full">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+            <div class="glass p-6 rounded-3xl relative group overflow-hidden">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1">Quota de Alocação
+                        </h3>
+                        <p class="text-sm font-mono text-zinc-300" id="quota-text">Syncing...</p>
+                    </div>
+                    <svg class="w-5 h-5 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 7v10l8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div id="quota-fill" class="h-full bg-brand-500 transition-all duration-1000 ease-in-out"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div id="tunnel-card-container"
+                class="lg:col-span-2 glass p-6 rounded-3xl border-l-4 border-l-red-500 transition-all duration-500">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="relative">
+                            <div id="tunnel-dot" class="w-4 h-4 rounded-full bg-red-500 shadow-lg shadow-red-500/20">
+                            </div>
+                            <div id="tunnel-ping"
+                                class="absolute inset-0 rounded-full bg-red-500 status-ping opacity-0"></div>
+                        </div>
+                        <div>
+                            <h3 id="tunnel-text" class="text-lg font-black tracking-tight mb-1">Motor Desconectado</h3>
+                            <div id="tunnel-sub"
+                                class="font-mono text-[10px] md:text-xs text-zinc-500 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+                                Aguardando handshake: crom-cli tunnel localhost
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-8 border-l border-white/10 pl-8">
+                        <div class="text-center">
+                            <div id="tunnel-requests" class="text-3xl font-black text-white leading-none">0</div>
+                            <div class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-1">Requisições
+                            </div>
+                        </div>
+                        <div class="hidden md:block">
+                            <div class="text-3xl font-black text-white leading-none">∞</div>
+                            <div class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest mt-1">Bandwidth
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="xl:col-span-7 space-y-8">
+                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                    <h2 class="text-xl font-black tracking-tight flex items-center gap-3 italic">
+                        <span class="text-brand-400 uppercase not-italic text-sm tracking-widest">0x</span>
+                        Nodos de Redirecionamento
+                    </h2>
+                </div>
+
+                <div id="subdomains-container" class="grid gap-4">
+                    <div class="animate-pulse space-y-4">
+                        <div class="h-24 glass rounded-3xl opacity-50"></div>
+                        <div class="h-24 glass rounded-3xl opacity-30"></div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="xl:col-span-5">
+                <div
+                    class="glass p-8 rounded-[2.5rem] sticky top-24 border-t-4 border-brand-500 shadow-2xl shadow-brand-500/5">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-brand-500/10 flex items-center justify-center border border-brand-500/20">
+                            <svg class="w-6 h-6 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-black tracking-tight">Novo Provisionamento</h3>
+                    </div>
+
+                    <form id="domain-form" class="space-y-6">
+                        <div class="space-y-4">
+                            <label class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Layer 7
+                                Roteamento</label>
+                            <div class="group relative">
+                                <input type="text" name="subdomain" required placeholder="meu-app"
+                                    class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white font-mono focus:outline-none focus:border-brand-500 transition-all peer">
+                                <span
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 font-mono text-sm group-focus-within:text-brand-400 transition-colors">
+                                    .crom.me
+                                </span>
+                            </div>
+                            <input type="text" name="target" required placeholder="CNAME ou IP (ex: vercel.app)"
+                                class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white font-mono focus:outline-none focus:border-brand-500 transition-all">
+                        </div>
+
+                        <div class="space-y-4 pt-4">
+                            <label
+                                class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] block">Auditoria
+                                & Justificativa</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" name="project_name" required placeholder="Nome do Projeto"
+                                    class="bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-brand-500 transition-all">
+                                <input type="email" name="contact_email" required placeholder="Email de Contato"
+                                    class="bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-brand-500 transition-all">
+                            </div>
+                            <textarea name="purpose" required rows="3"
+                                placeholder="Qual a finalidade técnica deste subdomínio?"
+                                class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white text-sm focus:outline-none focus:border-brand-500 transition-all resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" id="submit-btn"
+                            class="w-full py-5 bg-white text-surface-950 font-black rounded-2xl hover:bg-brand-400 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-white/5">
+                            Submeter para Aprovação
+                        </button>
+                    </form>
+
+                    <p class="mt-6 text-[10px] text-zinc-600 text-center uppercase tracking-widest leading-loose">
+                        Provisionamento sujeito à política de abusos da <span class="text-zinc-400 font-bold">CROM
+                            PROTOCOL</span>.
+                    </p>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            loadQuota();
+            loadSubdomains();
+            loadTunnelStats();
+            setInterval(loadTunnelStats, 3000);
+        });
+
+        async function loadUserInfo() {
+            try {
+                const resp = await fetch('/auth/me');
+                if (!resp.ok) return;
+                const data = await resp.json();
+                document.getElementById('username').textContent = '@' + (data.user_id || '?').slice(0, 12);
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadQuota() {
+            try {
+                const resp = await fetch('/api/user/quota');
+                if (!resp.ok) return;
+                const q = await resp.json();
+                const total = q.base_limit + q.bonus_limit;
+                const used = q.used_slots;
+                const pct = total > 0 ? Math.round((used / total) * 100) : 0;
+
+                const bar = document.getElementById('quota-fill');
+                bar.style.width = pct + '%';
+
+                if (pct >= 90) bar.className = 'h-full bg-red-500';
+                else if (pct >= 70) bar.className = 'h-full bg-yellow-500';
+                else bar.className = 'h-full bg-brand-500';
+
+                document.getElementById('quota-text').innerHTML = `<span class="text-white font-bold">${used}</span> de ${total} ativos (${pct}%)`;
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadTunnelStats() {
+            try {
+                const resp = await fetch('/api/user/stats');
+                if (!resp.ok) return;
+                const data = await resp.json();
+
+                const container = document.getElementById('tunnel-card-container');
+                const dot = document.getElementById('tunnel-dot');
+                const ping = document.getElementById('tunnel-ping');
+                const txt = document.getElementById('tunnel-text');
+                const sub = document.getElementById('tunnel-sub');
+                const reqs = document.getElementById('tunnel-requests');
+
+                reqs.textContent = data.routed_requests.toLocaleString('pt-BR');
+
+                if (data.is_online) {
+                    container.classList.replace('border-l-red-500', 'border-l-brand-500');
+                    container.classList.add('bg-brand-500/5');
+                    dot.className = 'w-4 h-4 rounded-full bg-brand-400 shadow-lg shadow-brand-400/50';
+                    ping.classList.replace('opacity-0', 'opacity-75');
+                    ping.classList.replace('bg-red-500', 'bg-brand-500');
+                    txt.textContent = 'Engine Ativa';
+                    txt.className = 'text-lg font-black tracking-tight mb-1 text-brand-400';
+                    sub.innerHTML = `Tunneling via: <span class="text-white font-bold">https://${data.active_subdomain}-free.crom.me</span>`;
+                } else {
+                    container.classList.replace('border-l-brand-500', 'border-l-red-500');
+                    container.classList.remove('bg-brand-500/5');
+                    dot.className = 'w-4 h-4 rounded-full bg-red-500 shadow-lg shadow-red-500/50';
+                    ping.classList.replace('opacity-75', 'opacity-0');
+                    txt.textContent = 'Motor Desconectado';
+                    txt.className = 'text-lg font-black tracking-tight mb-1 text-white';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        const StatusConfig = {
+            'ACTIVE': { color: 'text-brand-400', bg: 'bg-brand-500/10', border: 'border-brand-500/20' },
+            'PENDING': { color: 'text-yellow-400', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20' },
+            'REJECTED': { color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+            'default': { color: 'text-zinc-500', bg: 'bg-white/5', border: 'border-white/10' }
+        };
+
+        async function loadSubdomains() {
+            const container = document.getElementById('subdomains-container');
+            try {
+                const resp = await fetch('/api/user/subdomains');
+                const domains = await resp.json();
+
+                if (!domains || domains.length === 0) {
+                    container.innerHTML = `<div class="p-10 glass rounded-3xl text-center border-dashed border-2 border-white/5">
+                        <p class="text-zinc-600 font-mono text-sm uppercase tracking-widest">Nenhum nodo registrado na malha.</p>
+                    </div>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+                domains.forEach(d => {
+                    const cfg = StatusConfig[d.status] || StatusConfig.default;
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <div class="glass p-6 rounded-[2rem] hover:bg-white/5 transition-all group border border-transparent hover:border-white/10">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <h4 class="text-lg font-black text-white truncate group-hover:text-brand-400 transition-colors">${d.subdomain}.crom.me</h4>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cfg.bg} ${cfg.color} ${cfg.border}">
+                                            ${d.status}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-zinc-500 font-mono text-xs">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        <span class="truncate">${d.target}</span>
+                                    </div>
+                                </div>
+                                <a href="https://${d.subdomain}.crom.me" target="_blank" class="p-3 bg-white/5 rounded-2xl hover:bg-brand-500 hover:text-surface-950 transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div.firstElementChild);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('domain-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            const data = Object.fromEntries(new FormData(e.target).entries());
+
+            btn.disabled = true;
+            btn.textContent = "PROCESSANDO...";
+
+            try {
+                const resp = await fetch('/api/subdomains/request', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (resp.ok) {
+                    e.target.reset();
+                    loadSubdomains();
+                    loadQuota();
+                } else {
+                    alert('Erro: ' + await resp.text());
+                }
+            } catch (err) { alert('Falha crítica de conexão.'); }
+            finally {
+                btn.disabled = false;
+                btn.textContent = "SUBMETER PARA APROVAÇÃO";
+            }
+        };
+    </script>
+</body>
+
+</html>

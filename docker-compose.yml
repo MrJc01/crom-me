@@ -1,0 +1,45 @@
+services:
+  api:
+    build: .
+    container_name: crom_api
+    restart: unless-stopped
+    # Removido 'ports' daqui para que apenas o Nginx aceda à API internamente
+    environment:
+      - DATABASE_URL=postgres://cromme_user:cromme_pass@db:5432/cromme?sslmode=disable
+      - APP_ENV=production
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: crom_nginx
+    restart: unless-stopped
+    ports:
+      - "8443:80" # Porta 8443 da VPS -> Porta 80 interna do container Nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+
+  db:
+    image: postgres:16-alpine
+    container_name: crom_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=cromme_user
+      - POSTGRES_PASSWORD=cromme_pass
+      - POSTGRES_DB=cromme
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cromme_user -d cromme"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
+    driver: local
