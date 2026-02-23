@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"net/http/httputil"
@@ -76,6 +77,22 @@ func main() {
 		return api.RateLimitMiddleware(limiter, h)
 	}
 
+	// Helper para renderizar templates com injeção de variáveis de ambiente
+	renderTemplate := func(w http.ResponseWriter, tmplPath string) {
+		tmpl, err := template.ParseFiles(tmplPath)
+		if err != nil {
+			slog.Error("Erro ao carregar template", "path", tmplPath, "error", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		data := map[string]interface{}{
+			"GoogleAnalyticsID": os.Getenv("GOOGLE_ANALYTICS_ID"),
+		}
+		if err := tmpl.Execute(w, data); err != nil {
+			slog.Error("Erro ao executar template", "path", tmplPath, "error", err)
+		}
+	}
+
 	// 4. Mux da API Principal
 	apiMux := http.NewServeMux()
 
@@ -89,7 +106,7 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-		http.ServeFile(w, r, "web/templates/index.html")
+		renderTemplate(w, "web/templates/index.html")
 	})
 
 	// Auth Routes
@@ -100,7 +117,7 @@ func main() {
 
 	// Dashboard e Subdomínios (Protegidos com Auth + Rate Limit)
 	apiMux.HandleFunc("/dashboard", api.AuthMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "web/templates/dashboard.html")
+		renderTemplate(w, "web/templates/dashboard.html")
 	}))
 	apiMux.Handle("/api/subdomains/request", apiWithRateLimit(api.AuthMiddleware(apiHandler.RequestSubdomainHandler)))
 	apiMux.HandleFunc("/api/user/subdomains", api.AuthMiddleware(apiHandler.UserSubdomainsHandler))
@@ -109,7 +126,7 @@ func main() {
 
 	// Admin (Protegido com AdminMiddleware)
 	apiMux.HandleFunc("/admin", api.AdminMiddleware(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "web/templates/admin.html")
+		renderTemplate(w, "web/templates/admin.html")
 	}))
 	apiMux.HandleFunc("/api/admin/pending", api.AdminMiddleware(apiHandler.ListPendingHandler))
 	apiMux.HandleFunc("/api/admin/approve", api.AdminMiddleware(apiHandler.ApproveHandler))
