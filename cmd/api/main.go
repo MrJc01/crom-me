@@ -100,6 +100,11 @@ func main() {
 	fs := http.FileServer(http.Dir("web/static"))
 	apiMux.Handle("/static/", http.StripPrefix("/static/", fs))
 
+	// Instalação do CLI
+	apiMux.HandleFunc("/install.sh", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "install.sh")
+	})
+
 	// Rota da Landing Page
 	apiMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {

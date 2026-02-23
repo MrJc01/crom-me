@@ -31,6 +31,9 @@ COPY --from=builder /app/bin/crom-api /app/bin/crom-api
 # Copiar os templates HTML e assets
 COPY --from=builder /app/web /app/web
 
+# Copiar o script de instalação do CLI
+COPY --from=builder /app/install.sh /app/install.sh
+
 # Expõe a porta principal da API
 EXPOSE 8080
 
