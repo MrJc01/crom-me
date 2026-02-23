@@ -160,9 +160,9 @@ func main() {
 		// 2. Se for um subdomínio (ex: tigre-agil.crom.me ou google.crom.me)
 		if strings.HasSuffix(host, ".crom.me") {
 			subdomain := strings.TrimSuffix(host, ".crom.me")
-			// Opcional: lidar com free.crom.me (ex: tigre-agil.free.crom.me)
-			if strings.HasSuffix(subdomain, ".free") {
-				subdomain = strings.TrimSuffix(subdomain, ".free")
+			// Strip do sufixo "-free" dos túneis gratuitos (ex: forte-colibri-free → forte-colibri)
+			if strings.HasSuffix(subdomain, "-free") {
+				subdomain = strings.TrimSuffix(subdomain, "-free")
 			}
 			
 			// 2.A: Verifica se é um domínio ESTÁTICO cadastrado e APROVADO via Painel (Banco de Dados)
