@@ -80,6 +80,22 @@
         .float-anim {
             animation: float 6s ease-in-out infinite;
         }
+
+        .install-tab {
+            color: #71717a;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .install-tab:hover {
+            color: #d4d4d8;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .install-tab.active-tab {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
     </style>
 </head>
 
@@ -140,27 +156,123 @@
                     class="text-brand-400 font-bold">crom.run</span>.
             </p>
 
-            <div id="cli" class="max-w-3xl mx-auto relative group float-anim">
+            <div id="cli" class="max-w-3xl mx-auto relative group">
                 <div
                     class="absolute -inset-1 bg-gradient-to-r from-brand-500/50 to-blue-500/50 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity">
                 </div>
                 <div class="relative bg-surface-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                    <!-- Tab Bar -->
                     <div class="flex items-center justify-between px-4 py-3 bg-zinc-800/50 border-b border-white/5">
-                        <div class="flex gap-2">
-                            <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                        <div class="flex gap-1">
+                            <button onclick="switchTab('linux')" id="tab-linux"
+                                class="install-tab active-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.368 1.884 1.43.868.134 1.703-.272 2.191-.574.3-.18.599-.135.867-.268.268-.135.535-.198.725-.532.19-.334.267-.735.116-1.329-.195-.868-.399-.868-.249-1.265.087-.197.254-.334.315-.6.046-.192.095-.4.088-.668-.023-.533-.201-.934-.135-1.072.095-.2.166-.267.181-.534.008-.135-.028-.399-.093-.665-.063-.264-.16-.465-.268-.735-.113-.267-.16-.535-.135-.8.012-.2.067-.4.135-.6.016-.067.043-.135.068-.2.025-.066.049-.134.068-.2.159-.534.364-.934.489-1.269.063-.135.12-.267.18-.399.1-.2.21-.409.31-.6.1-.2.2-.399.3-.604.1-.198.167-.398.236-.598.067-.201.12-.404.153-.601.015-.067.027-.135.035-.2.027-.199.057-.399-.001-.599-.057-.2-.157-.394-.292-.586-.135-.2-.31-.39-.488-.593-.178-.2-.393-.4-.647-.599-.247-.2-.538-.399-.864-.599-.073-.05-.147-.098-.226-.147zm-1.014 2.01c-.09 0-.179.005-.269.013-2.625.205-2.126 3.31-2.169 4.407-.031.384-.089.767-.211 1.125l-.019.043-.136.366-.22.477-.181.439c-.12.293-.273.538-.332.87-.058.335-.003.738.141 1.232.001.005.003.01.005.014.104.352.327.595.434.89.105.284.141.604.198.895.074.386.153.764.275 1.12.12.357.265.702.494.972l.003.004c.22.25.474.464.744.616.243.136.508.227.785.292l.002.023-.097.224-.095.183c-.182.367-.469.619-.728.744-.253.13-.56.118-.939.038a7.98 7.98 0 01-.37-.094c-.51-.145-1.087-.339-1.548-.593-.463-.248-.8-.54-.86-.924a2.16 2.16 0 01.019-.554c.026-.183.063-.373.094-.564l.005-.039c.079-.455.153-.86.027-1.223-.126-.366-.437-.62-.737-.826l-.017-.012c-.153-.097-.26-.08-.34.027-.09.12-.133.365-.094.698l.002.009c.051.314.132.574.047.893-.082.308-.27.564-.47.797l-.014.018c-.203.235-.417.45-.491.699-.073.249-.028.528.163.782l.003.003c.072.084.144.147.207.197-.063.015-.123.024-.184.035l-.076.012c-.42.068-.848-.004-1.16-.166-.31-.158-.461-.365-.4-.709.063-.36.223-.653.21-1.04-.008-.192-.149-.399-.357-.599l-.017-.018c-.165-.141-.236-.134-.284-.02-.063.145-.028.385.071.653.117.288.273.53.27.835 0 .332-.266.6-.555.7a1.3 1.3 0 01-.468.067c-.24 0-.434-.048-.6-.148-.067-.04-.13-.083-.183-.14l-.01-.012c-.065-.088-.108-.195-.1-.304.005-.1.045-.198.11-.33l.003-.005c.102-.198.255-.45.265-.804.007-.244-.107-.486-.327-.716-.22-.229-.505-.459-.594-.785 0-.338.12-.734.43-1.237.311-.501.795-1.05 1.326-1.621l.001-.001c.541-.585 1.134-1.194 1.621-1.856.488-.66.861-1.38.916-2.2.07-1.039-.027-1.954.162-2.681.189-.721.509-1.239 1.03-1.606.507-.357 1.2-.543 2.1-.608a4.53 4.53 0 01.319-.013zm1.436.103c.27 0 .549.022.832.067 1.24.201 2.03.73 2.506 1.42.479.695.633 1.52.652 2.329.02.762-.074 1.513-.077 2.152-.003.71.145 1.277.636 1.822.517.588 1.144 1.214 1.682 1.831.537.618 1 1.239 1.29 1.81.297.569.352 1.106.064 1.552-.288.445-.97.814-2.14.898-.116.008-.238.003-.36-.01l-.026-.001c-.1-.008-.19-.014-.278-.014-.174 0-.312.025-.457.139l-.005.004c-.076.07-.1.148-.1.245 0 .133.068.272.158.443.091.171.21.36.267.57.058.21.033.435-.096.642l-.003.004c-.052.065-.117.097-.167.126a2.348 2.348 0 01-.533.186c-.2.047-.44.078-.72.087l-.057.001c-.302 0-.51-.085-.646-.226-.136-.14-.222-.344-.309-.575a4.42 4.42 0 01-.182-.596l-.012-.056c-.068-.322-.215-.464-.37-.466h-.002c-.153.002-.285.15-.35.477l-.022.11c-.04.207-.079.413-.125.611-.044.201-.106.396-.222.553-.115.158-.286.264-.55.323l-.023.004c-.26.057-.52.011-.789-.098a3.38 3.38 0 01-.778-.434l-.018-.013c-.393-.318-.695-.685-.828-1.066-.132-.38-.103-.771.094-1.149.065-.121.147-.233.221-.355.075-.12.149-.244.192-.387.043-.143.05-.307-.023-.497l-.003-.007c-.12-.284-.318-.425-.556-.48a1.42 1.42 0 00-.352-.04c-.127 0-.243.011-.343.023a4.56 4.56 0 01-.597-.01l-.029-.001c-.32-.03-.567-.17-.735-.41-.168-.237-.258-.572-.31-.978a5.7 5.7 0 01-.037-.744l.003-.134c.018-.68.118-1.37.316-2.009a7.44 7.44 0 011.27-2.274c.47-.556.973-1.16 1.343-1.75.37-.586.626-1.14.654-1.75.053-1.061-.04-2.021.22-2.743.26-.718.729-1.172 1.582-1.339a4.16 4.16 0 01.752-.065z" />
+                                </svg>
+                                Linux / macOS
+                            </button>
+                            <button onclick="switchTab('windows')" id="tab-windows"
+                                class="install-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" />
+                                </svg>
+                                Windows
+                            </button>
+                            <button onclick="switchTab('usage')" id="tab-usage"
+                                class="install-tab px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    stroke-width="2">
+                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                Uso
+                            </button>
                         </div>
-                        <span class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Live Terminal — CLI
-                            v0.2</span>
+                        <span class="text-[10px] font-mono text-zinc-500 uppercase tracking-widest hidden sm:block">CLI
+                            v0.2 — Multiplataforma</span>
                     </div>
-                    <div class="p-6 md:p-8 font-mono text-sm md:text-base text-left">
-                        <div class="flex gap-3 mb-4">
-                            <span class="text-brand-400 font-bold">❯</span>
-                            <span class="text-zinc-100 italic">curl -sSL https://crom.me/install.sh | bash</span>
+
+                    <!-- Linux/macOS Tab -->
+                    <div id="panel-linux" class="install-panel p-6 md:p-8 font-mono text-sm md:text-base text-left">
+                        <div class="text-zinc-500 text-xs mb-4 font-sans uppercase tracking-wider font-bold">Instalação
+                            — Linux / macOS / WSL</div>
+                        <div class="flex gap-3 mb-3 items-start">
+                            <span class="text-brand-400 font-bold select-none">❯</span>
+                            <span class="text-zinc-100 break-all">curl -sSL https://crom.me/install.sh | bash</span>
                         </div>
-                        <div class="flex gap-3 mb-6">
-                            <span class="text-brand-400 font-bold">❯</span>
+                        <div class="mt-5 space-y-2 py-4 px-5 bg-black/40 rounded-lg border border-white/5">
+                            <div class="text-brand-400 font-bold flex items-center gap-2 text-sm">
+                                <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+                                Output esperado
+                            </div>
+                            <div class="text-zinc-500 text-xs">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                            <div class="text-zinc-400 text-xs space-y-0.5">
+                                <div>🖥️ Sistema: <span class="text-brand-400">linux</span> | Arquitetura: <span
+                                        class="text-brand-400">amd64</span></div>
+                                <div>📥 Baixando release mais recente...</div>
+                                <div class="text-brand-400">✅ crom-cli instalado com sucesso!</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-zinc-600 text-xs font-sans">
+                            Compatível com <span class="text-zinc-400">Ubuntu, Debian, Fedora, Arch, macOS (Intel/Apple
+                                Silicon)</span>
+                        </div>
+                    </div>
+
+                    <!-- Windows Tab -->
+                    <div id="panel-windows"
+                        class="install-panel hidden p-6 md:p-8 font-mono text-sm md:text-base text-left">
+                        <div class="text-zinc-500 text-xs mb-4 font-sans uppercase tracking-wider font-bold">Instalação
+                            — Windows (PowerShell)</div>
+                        <div class="flex gap-3 mb-3 items-start">
+                            <span class="text-blue-400 font-bold select-none">PS&gt;</span>
+                            <span class="text-zinc-100 break-all">irm https://crom.me/install.ps1 | iex</span>
+                        </div>
+                        <div class="mt-5 space-y-2 py-4 px-5 bg-black/40 rounded-lg border border-white/5">
+                            <div class="text-blue-400 font-bold flex items-center gap-2 text-sm">
+                                <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                                Output esperado
+                            </div>
+                            <div class="text-zinc-500 text-xs">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+                            <div class="text-zinc-400 text-xs space-y-0.5">
+                                <div>🖥️ Sistema: <span class="text-blue-400">windows</span> | Arquitetura: <span
+                                        class="text-blue-400">amd64</span></div>
+                                <div>📥 Baixando release mais recente...</div>
+                                <div>✅ Instalado em: <span class="text-zinc-300">%LOCALAPPDATA%\crom-cli\</span></div>
+                                <div class="text-blue-400">✅ PATH do usuário atualizado automaticamente.</div>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
+                            <div class="text-amber-400 text-xs font-sans font-bold mb-1">💡 Alternativa: Git Bash / WSL
+                            </div>
+                            <div class="text-zinc-500 text-xs font-sans">
+                                Se preferir, use o comando Linux no <span class="text-zinc-300">Git Bash</span>, <span
+                                    class="text-zinc-300">MSYS2</span> ou <span class="text-zinc-300">WSL</span>:
+                                <code class="text-zinc-300 ml-1">curl -sSL https://crom.me/install.sh | bash</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Tab -->
+                    <div id="panel-usage"
+                        class="install-panel hidden p-6 md:p-8 font-mono text-sm md:text-base text-left">
+                        <div class="text-zinc-500 text-xs mb-4 font-sans uppercase tracking-wider font-bold">Uso Rápido
+                            — 2 Comandos</div>
+                        <div class="flex gap-3 mb-2 items-center">
+                            <span class="text-zinc-600 text-xs font-sans w-4 text-right select-none">1.</span>
+                            <span class="text-zinc-500 font-sans text-xs">Autentique-se:</span>
+                        </div>
+                        <div class="flex gap-3 mb-5 items-start pl-7">
+                            <span class="text-brand-400 font-bold select-none">❯</span>
+                            <span class="text-zinc-100">crom-cli auth login</span>
+                        </div>
+                        <div class="flex gap-3 mb-2 items-center">
+                            <span class="text-zinc-600 text-xs font-sans w-4 text-right select-none">2.</span>
+                            <span class="text-zinc-500 font-sans text-xs">Exponha qualquer porta:</span>
+                        </div>
+                        <div class="flex gap-3 mb-6 items-start pl-7">
+                            <span class="text-brand-400 font-bold select-none">❯</span>
                             <span class="text-zinc-100">crom-cli tunnel 8080</span>
                         </div>
                         <div class="space-y-1 py-4 px-5 bg-black/40 rounded-lg border border-white/5">
@@ -168,9 +280,9 @@
                                 <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
                                 Conexão Estabelecida com Crom Protocol
                             </div>
-                            <div class="text-zinc-500 text-xs mb-2">----------------------------------------</div>
+                            <div class="text-zinc-500 text-xs mb-2">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
                             <div class="text-zinc-300">Domínio: <span
-                                    class="text-blue-400 underline underline-offset-4">https://tigre-veloz.crom.run</span>
+                                    class="text-blue-400 underline underline-offset-4">https://tigre-veloz-free.crom.me</span>
                             </div>
                             <div class="text-zinc-300">Local: <span class="text-zinc-500">http://localhost:8080</span>
                             </div>
@@ -178,6 +290,15 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+                function switchTab(tab) {
+                    document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active-tab'));
+                    document.querySelectorAll('.install-panel').forEach(p => p.classList.add('hidden'));
+                    document.getElementById('tab-' + tab).classList.add('active-tab');
+                    document.getElementById('panel-' + tab).classList.remove('hidden');
+                }
+            </script>
         </section>
 
         <section id="origin"
@@ -319,7 +440,8 @@
                 <span class="font-black text-2xl tracking-tighter uppercase">CROM COLLECTIVE</span>
             </div>
             <p class="text-zinc-500 text-sm max-w-md mx-auto leading-relaxed">
-                Desenvolvido de forma independente pelo Coletivo Crom. Sem rastreadores, sem bloatware. Apenas o protocolo puro
+                Desenvolvido de forma independente pelo Coletivo Crom. Sem rastreadores, sem bloatware. Apenas o
+                protocolo puro
                 servindo a comunidade.
             </p>
             <div class="mt-8 flex justify-center gap-8 text-zinc-600 text-xs font-bold uppercase tracking-widest">
