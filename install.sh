@@ -44,13 +44,24 @@ echo "Dando permissões de execução..."
 chmod +x "$TMP_FILE"
 
 INSTALL_DIR="/usr/local/bin"
-echo "Instalando em $INSTALL_DIR (pode exigir senha do sudo)..."
 
-# Move o binário (exige sudo)
 if [ -w "$INSTALL_DIR" ]; then
+    echo "Instalando em $INSTALL_DIR..."
     mv "$TMP_FILE" "$INSTALL_DIR/crom-cli"
 else
-    sudo mv "$TMP_FILE" "$INSTALL_DIR/crom-cli"
+    # Tenta usar sudo se disponível no terminal, mas num pipe `curl | bash` isso frequentemente falha.
+    # Alternativa segura: instalar em ~/.local/bin
+    USER_INSTALL_DIR="$HOME/.local/bin"
+    echo "Sem permissão em $INSTALL_DIR. Instalando localmente em $USER_INSTALL_DIR..."
+    mkdir -p "$USER_INSTALL_DIR"
+    mv "$TMP_FILE" "$USER_INSTALL_DIR/crom-cli"
+    
+    # Avisar sobre o PATH
+    if [[ ":$PATH:" != *":$USER_INSTALL_DIR:"* ]]; then
+        echo -e "${RED}Atenção: $USER_INSTALL_DIR não está no seu PATH.${NC}"
+        echo "Adicione a seguinte linha no seu ~/.bashrc ou ~/.zshrc:"
+        echo "export PATH=\"\$HOME/.local/bin:\$PATH\""
+    fi
 fi
 
 echo -e "${GREEN}✅ Sucesso! O crom-cli foi instalado.${NC}"
