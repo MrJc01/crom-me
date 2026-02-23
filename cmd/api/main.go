@@ -104,6 +104,9 @@ func main() {
 	apiMux.HandleFunc("/install.sh", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "install.sh")
 	})
+	apiMux.HandleFunc("/install.ps1", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "install.ps1")
+	})
 
 	// Rota da Landing Page
 	apiMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
