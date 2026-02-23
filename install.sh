@@ -75,7 +75,7 @@ fetch_download_url() {
         asset_name="${asset_name}.exe"
     fi
 
-    echo -e "${BLUE}🔍 Buscando a versão mais recente para ${YELLOW}${target_os}/${target_arch}${BLUE}...${NC}"
+    echo -e "${BLUE}🔍 Buscando a versão mais recente para ${YELLOW}${target_os}/${target_arch}${BLUE}...${NC}" >&2
 
     local api_response
     api_response=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null || true)
