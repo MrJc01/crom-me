@@ -27,7 +27,7 @@ esac
 
 # Obtem a versão mais recente da API do GitHub
 echo "Buscando a versão mais recente..."
-LATEST_URL=$(curl -s https://api.github.com/repos/MrJc01/crom-me/releases/latest | grep "browser_download_url.*crom-cli-${TARGET_OS}-${TARGET_ARCH}\b" | cut -d : -f 2,3 | tr -d \")
+LATEST_URL=$(curl -s https://api.github.com/repos/MrJc01/crom-me/releases/latest | grep "browser_download_url.*crom-cli-${TARGET_OS}-${TARGET_ARCH}\b" | cut -d : -f 2,3 | tr -d \" | xargs)
 
 if [ -z "$LATEST_URL" ]; then
     echo -e "${RED}Erro: Não foi possível encontrar o binário para ${TARGET_OS}-${TARGET_ARCH}.${NC}"
@@ -38,7 +38,20 @@ fi
 TMP_FILE="/tmp/crom-cli"
 
 echo "Baixando de: $LATEST_URL"
-curl -sL "$LATEST_URL" -o "$TMP_FILE"
+# Tenta com curl primeiro, depois wget
+if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$LATEST_URL" -o "$TMP_FILE"
+elif command -v wget >/dev/null 2>&1; then
+    wget -qO "$TMP_FILE" "$LATEST_URL"
+else
+    echo -e "${RED}Erro: 'curl' ou 'wget' não estão instalados.${NC}"
+    exit 1
+fi
+
+if [ ! -s "$TMP_FILE" ]; then
+    echo -e "${RED}Erro: A transferência falhou. O arquivo baixado está vazio ou não existe.${NC}"
+    exit 1
+fi
 
 echo "Dando permissões de execução..."
 chmod +x "$TMP_FILE"
